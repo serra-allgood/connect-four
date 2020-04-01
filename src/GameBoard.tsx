@@ -88,10 +88,10 @@ const GameBoard: React.FC = () => {
     setTurn(turn + 1);
   };
 
-  const loopBoard = (
+  const countPerpendicular = (
     color: Piece,
     direction: "horizontal" | "vertical"
-  ): boolean => {
+  ): number => {
     let count = 0;
 
     for (let x = 0; x < columns.length; x++) {
@@ -106,7 +106,7 @@ const GameBoard: React.FC = () => {
         if (piece === color) {
           count++;
           if (count >= 4) {
-            return true;
+            return count;
           }
         } else {
           count = 0;
@@ -114,23 +114,74 @@ const GameBoard: React.FC = () => {
       }
     }
 
-    return false;
+    return count;
   };
 
   const checkHorizontal = (color: Piece): boolean => {
-    return loopBoard(color, "horizontal");
+    return countPerpendicular(color, "horizontal") >= 4;
   };
 
   const checkVertical = (color: Piece): boolean => {
-    return loopBoard(color, "vertical");
+    return countPerpendicular(color, "vertical") >= 4;
+  };
+
+  const buildDiagonals = (direction: "up" | "down"): Piece[][] => {
+    let acc: Piece[][] = [[]];
+
+    const buildDiagonal = (x: number, y: number, acc: Piece[][]) => {
+      if (direction === "up") {
+        if (x >= columns.length || y >= columns[x].length) {
+          acc.unshift([]);
+          return;
+        }
+        acc[0].push(columns[x][y]);
+        buildDiagonal(x + 1, y + 1, acc);
+      } else {
+        if (x >= columns.length || y < 0) {
+          acc.unshift([]);
+          return;
+        }
+        acc[0].push(columns[x][y]);
+        buildDiagonal(x + 1, y - 1, acc);
+      }
+    };
+
+    for (let x = 0; x < columns.length; x++) {
+      for (let y = 0; y < columns[x].length; y++) {
+        buildDiagonal(x, y, acc);
+      }
+    }
+
+    return acc.filter(diagonal => diagonal.length > 3);
+  };
+
+  const countDiagonal = (color: Piece, direction: "up" | "down"): boolean => {
+    let hasWinningCount = false;
+    let count = 0;
+    const diagonals: Piece[][] = buildDiagonals(direction);
+    diagonals.forEach(diagonal => {
+      count = 0;
+      diagonal.forEach(piece => {
+        if (piece === color) {
+          count++;
+          if (count >= 4) {
+            hasWinningCount = true;
+          }
+        } else {
+          count = 0;
+        }
+      });
+    });
+
+    return hasWinningCount;
   };
 
   const checkUpDiagonal = (color: Piece): boolean => {
-    return false;
+    return countDiagonal(color, "up");
   };
 
   const checkDownDiagonal = (color: Piece): boolean => {
-    return false;
+    return countDiagonal(color, "down");
   };
 
   const Header: React.FC = () => {
