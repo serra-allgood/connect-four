@@ -88,12 +88,22 @@ const GameBoard: React.FC = () => {
     setTurn(turn + 1);
   };
 
-  const checkHorizontal = (color: Piece): boolean => {
+  const loopBoard = (
+    color: Piece,
+    direction: "horizontal" | "vertical"
+  ): boolean => {
     let count = 0;
 
     for (let x = 0; x < columns.length; x++) {
       for (let y = 0; y < columns[x].length; y++) {
-        if (columns[y][x] === color) {
+        let piece: Piece;
+        if (direction === "horizontal") {
+          piece = columns[y][x];
+        } else {
+          piece = columns[x][y];
+        }
+
+        if (piece === color) {
           count++;
           if (count >= 4) {
             return true;
@@ -107,23 +117,12 @@ const GameBoard: React.FC = () => {
     return false;
   };
 
+  const checkHorizontal = (color: Piece): boolean => {
+    return loopBoard(color, "horizontal");
+  };
+
   const checkVertical = (color: Piece): boolean => {
-    let count = 0;
-
-    for (let x = 0; x < columns.length; x++) {
-      for (let y = 0; y < columns[x].length; y++) {
-        if (columns[x][y] === color) {
-          count++;
-          if (count >= 4) {
-            return true;
-          }
-        } else {
-          count = 0;
-        }
-      }
-    }
-
-    return false;
+    return loopBoard(color, "vertical");
   };
 
   const checkUpDiagonal = (color: Piece): boolean => {
