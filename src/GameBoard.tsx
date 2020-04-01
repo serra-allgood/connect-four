@@ -89,6 +89,21 @@ const GameBoard: React.FC = () => {
   };
 
   const checkHorizontal = (color: Piece): boolean => {
+    let count = 0;
+
+    for (let x = 0; x < columns.length; x++) {
+      for (let y = 0; y < columns[x].length; y++) {
+        if (columns[y][x] === color) {
+          count++;
+          if (count >= 4) {
+            return true;
+          }
+        } else {
+          count = 0;
+        }
+      }
+    }
+
     return false;
   };
 
